@@ -10,10 +10,10 @@ const findUserById = async (id: string) => {
   return user;
 };
 
-const findUserByEmail = async (email: string) => {
-  const user = await userModel.findOne({ email });
-  if (!user) throwError("User not found");
-  return user;
-};
+// const findUserByEmail = async (email: string) => {
+//   const user = await userModel.findOne({ email }).select("+password");
+//   if (!user) throwError("User not found");
+//   return user;
+// };
 
-export { findUserById, findUserByEmail };
+export { findUserById };
