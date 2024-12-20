@@ -1,6 +1,6 @@
 import { Request, Response, RequestHandler } from "express";
 import { validationResult } from "express-validator";
-import { findUserByEmail, generateToken } from "../services";
+import { generateToken } from "../services";
 import { userModel } from "../models";
 import bcrypt from "bcryptjs";
 
@@ -17,7 +17,7 @@ const register: RequestHandler = async (req: Request, res: Response) => {
   const { fullName, email, password } = req.body;
 
   try {
-    const user = await findUserByEmail(email);
+    const user = await userModel.findOne({ email }).select("+password");
 
     if (user) {
       res.status(400).json({
@@ -68,7 +68,7 @@ const login: RequestHandler = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    const user = await findUserByEmail(email);
+    const user = await userModel.findOne({ email }).select("+password");
 
     if (!user) {
       res.status(400).json({
@@ -98,7 +98,6 @@ const login: RequestHandler = async (req: Request, res: Response) => {
       token,
       user: sanitizedUser,
     });
-    
   } catch (error) {
     console.log(error);
     res.status(500).json({
