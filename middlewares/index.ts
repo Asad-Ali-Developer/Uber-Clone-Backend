@@ -1,5 +1,8 @@
-import authMiddleware from "./authMiddleware";
+
+import authUserMiddleware from "./authUserMiddleware";
+import authCaptainMiddleware from "./authCaptainMiddleware";
 
 export {
-    authMiddleware,
+    authUserMiddleware,
+    authCaptainMiddleware,
 }

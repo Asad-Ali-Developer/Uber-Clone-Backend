@@ -1,8 +1,7 @@
-import { Request, Response, RequestHandler } from "express";
+import { Request, RequestHandler, Response } from "express";
 import { validationResult } from "express-validator";
-import { generateToken } from "../services";
-import { userModel } from "../models";
-import bcrypt from "bcryptjs";
+import { blacklistTokenModel, userModel } from "../models";
+import { comparePassword, generateToken, hashPassword } from "../services";
 
 // Typing the handler as RequestHandler without returning Response
 // Register functionality will be here.
@@ -17,7 +16,7 @@ const register: RequestHandler = async (req: Request, res: Response) => {
   const { fullName, email, password } = req.body;
 
   try {
-    const user = await userModel.findOne({ email }).select("+password");
+    const user = await userModel.findOne({ email });
 
     if (user) {
       res.status(400).json({
@@ -26,7 +25,7 @@ const register: RequestHandler = async (req: Request, res: Response) => {
       return; // ensure early return
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password);
 
     const newUser = await userModel.create({
       fullName: {
@@ -77,7 +76,7 @@ const login: RequestHandler = async (req: Request, res: Response) => {
       return; // ensure early return
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    const isPasswordCorrect = await comparePassword(password, user.password);
 
     if (!isPasswordCorrect) {
       res.status(400).json({
@@ -92,6 +91,8 @@ const login: RequestHandler = async (req: Request, res: Response) => {
       id: user.id,
       email: user.email,
     };
+
+    res.cookie("token", token);
 
     res.status(200).json({
       msg: "User has been logged in successfully!",
@@ -121,7 +122,6 @@ const User: RequestHandler = async (req: Request, res: Response) => {
       message: "User Authenticated Successfully!",
       user: req.user,
     });
-    
   } catch (error) {
     res.status(500).json({
       msg: "Internal server error!",
@@ -129,4 +129,34 @@ const User: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
-export default { register, login, User };
+const logout: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    const tokenFromCookie = req.cookies.token;
+    const tokenFromHeader = req.headers.authorization
+      ?.replace("Bearer ", "")
+      .trim();
+
+    const token = tokenFromCookie || tokenFromHeader;
+
+    if (!token) {
+      res.status(400).json({
+        msg: "Token not found!",
+      });
+      return;
+    }
+
+    await blacklistTokenModel.create({ token });
+
+    res.clearCookie("token");
+
+    res.status(200).json({
+      msg: "User has been logged out successfully!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Internal server error!",
+    });
+  }
+};
+
+export default { register, login, User, logout };
