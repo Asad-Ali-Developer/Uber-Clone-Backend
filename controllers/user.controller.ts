@@ -1,8 +1,7 @@
-import { Request, Response, RequestHandler } from "express";
+import { Request, RequestHandler, Response } from "express";
 import { validationResult } from "express-validator";
-import { generateToken } from "../services";
 import { blacklistTokenModel, userModel } from "../models";
-import bcrypt from "bcryptjs";
+import { comparePassword, generateToken, hashPassword } from "../services";
 
 // Typing the handler as RequestHandler without returning Response
 // Register functionality will be here.
@@ -17,7 +16,7 @@ const register: RequestHandler = async (req: Request, res: Response) => {
   const { fullName, email, password } = req.body;
 
   try {
-    const user = await userModel.findOne({ email }).select("+password");
+    const user = await userModel.findOne({ email });
 
     if (user) {
       res.status(400).json({
@@ -26,7 +25,7 @@ const register: RequestHandler = async (req: Request, res: Response) => {
       return; // ensure early return
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password);
 
     const newUser = await userModel.create({
       fullName: {
@@ -77,7 +76,7 @@ const login: RequestHandler = async (req: Request, res: Response) => {
       return; // ensure early return
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    const isPasswordCorrect = await comparePassword(password, user.password);
 
     if (!isPasswordCorrect) {
       res.status(400).json({
