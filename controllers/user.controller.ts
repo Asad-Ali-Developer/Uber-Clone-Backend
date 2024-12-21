@@ -1,7 +1,7 @@
 import { Request, Response, RequestHandler } from "express";
 import { validationResult } from "express-validator";
 import { generateToken } from "../services";
-import { userModel } from "../models";
+import { blacklistTokenModel, userModel } from "../models";
 import bcrypt from "bcryptjs";
 
 // Typing the handler as RequestHandler without returning Response
@@ -93,6 +93,8 @@ const login: RequestHandler = async (req: Request, res: Response) => {
       email: user.email,
     };
 
+    res.cookie("token", token);
+
     res.status(200).json({
       msg: "User has been logged in successfully!",
       token,
@@ -121,7 +123,6 @@ const User: RequestHandler = async (req: Request, res: Response) => {
       message: "User Authenticated Successfully!",
       user: req.user,
     });
-    
   } catch (error) {
     res.status(500).json({
       msg: "Internal server error!",
@@ -129,4 +130,34 @@ const User: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
-export default { register, login, User };
+const logout: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    const tokenFromCookie = req.cookies.token;
+    const tokenFromHeader = req.headers.authorization
+      ?.replace("Bearer ", "")
+      .trim();
+
+    const token = tokenFromCookie || tokenFromHeader;
+
+    if (!token) {
+      res.status(400).json({
+        msg: "Token not found!",
+      });
+      return;
+    }
+
+    await blacklistTokenModel.create({ token });
+
+    res.clearCookie("token");
+
+    res.status(200).json({
+      msg: "User has been logged out successfully!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Internal server error!",
+    });
+  }
+};
+
+export default { register, login, User, logout };

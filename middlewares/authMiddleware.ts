@@ -1,8 +1,9 @@
 // authMiddleware.ts
-import jwt from "jsonwebtoken";
-import { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
-import { userModel } from "../models";
+import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { findUserById } from "../services";
+import { blacklistTokenModel, userModel } from "../models";
 
 dotenv.config();
 
@@ -22,8 +23,15 @@ const authMiddleware = async (
   const tokenFromCookie = req.cookies.token;
 
   const token = tokenFromHeader || tokenFromCookie;
+
   if (!token) {
     res.status(401).json({ error: "No token, authorization denied" });
+  }
+
+  const isTokenBlacklisted = await userModel.findOne({ token });
+
+  if (isTokenBlacklisted) {
+    res.status(401).json({ error: "Token is blacklisted" });
   }
 
   try {
@@ -34,9 +42,7 @@ const authMiddleware = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
 
     if (decoded.email) {
-      const userLogged = await userModel
-        .findOne({ email: decoded.email })
-        .select("-password");
+      const userLogged = await findUserById(decoded.id as string);
 
       if (userLogged) {
         req.user = userLogged;

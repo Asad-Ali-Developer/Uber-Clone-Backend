@@ -7,7 +7,7 @@ import {
 } from "../validations";
 
 
-const { register, login, User } = userController;
+const { register, login, User, logout } = userController;
 
 const router = express.Router();
 
@@ -24,5 +24,6 @@ router.post("/login", loginValidation, login);
 
 // Protected route example
 router.get('/user', authMiddleware, User); // Protect this route with authMiddleware
+router.get('/logout', logout);
 
 export default router;
