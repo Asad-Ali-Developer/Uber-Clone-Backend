@@ -1,10 +1,10 @@
 import express from "express";
 import { userController } from "../controllers";
-import authMiddleware from "../middlewares/authMiddleware";
 import {
   loginValidation,
   registerValidation,
 } from "../validations";
+import { authUserMiddleware } from "../middlewares";
 
 
 const { register, login, User, logout } = userController;
@@ -23,7 +23,7 @@ router.post("/login", loginValidation, login);
 //   });
 
 // Protected route example
-router.get('/user', authMiddleware, User); // Protect this route with authMiddleware
+router.get('/user', authUserMiddleware, User); // Protect this route with authMiddleware
 router.get('/logout', logout);
 
 export default router;

@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
-import captainModel from "../models/captainModel";
 import { comparePassword, generateToken, hashPassword } from "../services";
 import { validationResult } from "express-validator";
+import { captainModel } from "../models";
 
 const createCaptain: RequestHandler = async (req: Request, res: Response) => {
   const errors = validationResult(req);
@@ -86,7 +86,7 @@ const loginCaptain: RequestHandler = async (req: Request, res: Response) => {
 
   const captain = await captainModel.findOne({ email });
 
-  if(!captain){
+  if (!captain) {
     res.status(400).json({
       message: "Captain not found!",
     });
@@ -95,7 +95,7 @@ const loginCaptain: RequestHandler = async (req: Request, res: Response) => {
 
   const isPasswordCorrect = await comparePassword(password, captain.password);
 
-  if(!isPasswordCorrect){
+  if (!isPasswordCorrect) {
     res.status(400).json({
       message: "Invalid Credentials!",
     });
@@ -110,7 +110,30 @@ const loginCaptain: RequestHandler = async (req: Request, res: Response) => {
     message: "Captain logged in successfully!",
     token,
   });
-
 };
 
-export default { createCaptain, loginCaptain };
+const Captain = async (req: Request, res: Response) => {
+  try {
+    const captainData = req.captain; // Accessing captain data from middleware
+
+    if (!captainData) {
+      res.status(400).json({
+        message: "Captain not found!",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Captain authenticated!",
+      captain: captainData,
+    });
+  } catch (error) {
+    console.error("Error in Captain controller:", error);
+    res.status(500).json({
+      message: "Internal server error!",
+    });
+  }
+};
+
+
+export default { createCaptain, loginCaptain, Captain };
