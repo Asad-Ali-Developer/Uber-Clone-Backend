@@ -16,8 +16,12 @@ const authMiddleware = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const token = req.header("Authorization")?.replace("Bearer ", "").trim();
 
+  // Get token from header or cookie
+  const tokenFromHeader = req.headers.authorization?.replace("Bearer ", "").trim();
+  const tokenFromCookie = req.cookies.token;
+
+  const token = tokenFromHeader || tokenFromCookie;
   if (!token) {
     res.status(401).json({ error: "No token, authorization denied" });
   }
