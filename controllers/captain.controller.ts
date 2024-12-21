@@ -1,6 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
 import captainModel from "../models/captainModel";
-import { generateToken, hashPassword } from "../services";
+import { comparePassword, generateToken, hashPassword } from "../services";
 import { validationResult } from "express-validator";
 
 const createCaptain: RequestHandler = async (req: Request, res: Response) => {
@@ -63,7 +63,6 @@ const createCaptain: RequestHandler = async (req: Request, res: Response) => {
       token,
       newCaptain,
     });
-
   } catch (error) {
     // Handle errors
     res.status(500).json({
@@ -73,4 +72,45 @@ const createCaptain: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
-export default { createCaptain };
+const loginCaptain: RequestHandler = async (req: Request, res: Response) => {
+  const error = validationResult(req);
+
+  if (!error.isEmpty()) {
+    res.status(400).json({
+      errors: error.array(),
+    });
+    return;
+  }
+
+  const { email, password } = req.body;
+
+  const captain = await captainModel.findOne({ email });
+
+  if(!captain){
+    res.status(400).json({
+      message: "Captain not found!",
+    });
+    return;
+  }
+
+  const isPasswordCorrect = await comparePassword(password, captain.password);
+
+  if(!isPasswordCorrect){
+    res.status(400).json({
+      message: "Invalid Credentials!",
+    });
+    return;
+  }
+
+  const token = generateToken(captain.id, captain.email);
+
+  res.cookie("token", token);
+
+  res.status(200).json({
+    message: "Captain logged in successfully!",
+    token,
+  });
+
+};
+
+export default { createCaptain, loginCaptain };
