@@ -5,6 +5,7 @@ import cors from "cors";
 import { userRoutes } from "./routes";
 import passport from "passport";
 import "./config/passportJWTStrategy";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
 
 // Initialize passport middleware to use JWT strategy for authentication
 app.use(passport.initialize());

@@ -106,4 +106,27 @@ const login: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
-export default { register, login };
+const User: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    const userData = req.user;
+
+    if (!userData) {
+      res.status(400).json({
+        msg: "User not found!",
+      });
+      return;
+    }
+
+    res.json({
+      message: "User Authenticated Successfully!",
+      user: req.user,
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      msg: "Internal server error!",
+    });
+  }
+};
+
+export default { register, login, User };
