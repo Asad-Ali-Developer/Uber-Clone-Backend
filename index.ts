@@ -6,6 +6,7 @@ import { userRoutes } from "./routes";
 import passport from "passport";
 import "./config/passportJWTStrategy";
 import cookieParser from "cookie-parser";
+import { captainRoutes } from "./routes";
 
 dotenv.config();
 
@@ -21,7 +22,9 @@ app.use(cookieParser());
 // Initialize passport middleware to use JWT strategy for authentication
 app.use(passport.initialize());
 
-app.use("/api", userRoutes);
+app.use("/api/users", userRoutes);
+
+app.use("/api/captains", captainRoutes)
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World with TypeScript!");
