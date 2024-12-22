@@ -24,7 +24,7 @@ app.use(passport.initialize());
 
 app.use("/api/users", userRoutes);
 
-app.use("/api/captain", captainRoutes)
+app.use("/api/captains", captainRoutes)
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World with TypeScript!");

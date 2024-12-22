@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
 import { comparePassword, generateToken, hashPassword } from "../services";
 import { validationResult } from "express-validator";
-import { captainModel } from "../models";
+import { blacklistTokenModel, captainModel } from "../models";
 
 const createCaptain: RequestHandler = async (req: Request, res: Response) => {
   const errors = validationResult(req);
@@ -135,5 +135,27 @@ const Captain = async (req: Request, res: Response) => {
   }
 };
 
+const logoutCaptain = async (req: Request, res: Response) => {
+  try {
+    const tokenFromCookie = req.cookies.token;
+    const tokenFromHeader = req.headers.authorization
+      ?.replace("Bearer ", "")
+      .trim();
 
-export default { createCaptain, loginCaptain, Captain };
+    const token = tokenFromCookie || tokenFromHeader;
+
+    await blacklistTokenModel.create({ token });
+
+    res.clearCookie("token");
+
+    res.status(200).json({
+      msg: "Captain has been logged out successfully!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Unauthorized!",
+    });
+  }
+};
+
+export default { createCaptain, loginCaptain, Captain, logoutCaptain };

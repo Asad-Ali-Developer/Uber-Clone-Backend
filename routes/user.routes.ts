@@ -23,7 +23,7 @@ router.post("/login", loginValidation, login);
 //   });
 
 // Protected route example
-router.get('/user', authUserMiddleware, User); // Protect this route with authMiddleware
+router.get('/profile', authUserMiddleware, User); // Protect this route with authMiddleware
 router.get('/logout', logout);
 
 export default router;
