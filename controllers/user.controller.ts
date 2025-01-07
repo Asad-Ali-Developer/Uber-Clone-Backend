@@ -19,8 +19,8 @@ const register: RequestHandler = async (req: Request, res: Response) => {
     const user = await userModel.findOne({ email });
 
     if (user) {
-      res.status(400).json({
-        msg: "User already has been registered!",
+      res.status(401).json({
+        message: "User already exists!",
       });
       return; // ensure early return
     }
@@ -44,7 +44,7 @@ const register: RequestHandler = async (req: Request, res: Response) => {
     const token = generateToken(newUser.id, newUser.email);
 
     res.status(201).json({
-      msg: "User has been registered successfully!",
+      message: "User registered successfully!",
       token,
       newUser: sanitizedUser,
     });
@@ -71,7 +71,7 @@ const login: RequestHandler = async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(400).json({
-        msg: "User not found!",
+        message: "User not found!",
       });
       return; // ensure early return
     }
@@ -79,8 +79,8 @@ const login: RequestHandler = async (req: Request, res: Response) => {
     const isPasswordCorrect = await comparePassword(password, user.password);
 
     if (!isPasswordCorrect) {
-      res.status(400).json({
-        msg: "Invalid credentials!",
+      res.status(401).json({
+        message: "Invalid credentials!",
       });
       return; // ensure early return
     }
@@ -95,7 +95,7 @@ const login: RequestHandler = async (req: Request, res: Response) => {
     res.cookie("token", token);
 
     res.status(200).json({
-      msg: "User has been logged in successfully!",
+      message: "User logged in successfully!",
       token,
       user: sanitizedUser,
     });
@@ -113,7 +113,7 @@ const User: RequestHandler = async (req: Request, res: Response) => {
 
     if (!userData) {
       res.status(400).json({
-        msg: "User not found!",
+        message: "User not found!",
       });
       return;
     }
@@ -124,7 +124,7 @@ const User: RequestHandler = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({
-      msg: "Internal server error!",
+      message: "Internal server error!",
     });
   }
 };
@@ -140,7 +140,7 @@ const logout: RequestHandler = async (req: Request, res: Response) => {
 
     if (!token) {
       res.status(400).json({
-        msg: "Token not found!",
+        message: "Token not found!",
       });
       return;
     }
@@ -150,11 +150,11 @@ const logout: RequestHandler = async (req: Request, res: Response) => {
     res.clearCookie("token");
 
     res.status(200).json({
-      msg: "User has been logged out successfully!",
+      message: "User logged out successfully!",
     });
   } catch (error) {
     res.status(500).json({
-      msg: "Internal server error!",
+      message: "Internal server error!",
     });
   }
 };

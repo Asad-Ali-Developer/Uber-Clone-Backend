@@ -7,10 +7,18 @@ import authenticateUser from "./user/userValidation";
 import captainRegisterValidation from "./captain/captainRegisterValidation";
 import loginCaptainValidation from "./captain/loginCaptainValidation";
 
+// Map Validations
+import mapQueryValidaiton from "./map/mapQueryValidaiton";
+import mapDistanceTimeValidation from "./map/mapDistanceTimeValidation";
+import mapAddressingSuggestionsValidation from "./map/maAddressingSuggestions.validation"
+
 export {
   registerValidation,
   loginValidation,
   authenticateUser,
   captainRegisterValidation,
   loginCaptainValidation,
+  mapQueryValidaiton,
+  mapDistanceTimeValidation,
+  mapAddressingSuggestionsValidation,
 };

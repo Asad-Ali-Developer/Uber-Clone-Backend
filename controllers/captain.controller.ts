@@ -29,7 +29,7 @@ const createCaptain: RequestHandler = async (req: Request, res: Response) => {
     const isCaptainExists = await captainModel.findOne({ email });
 
     if (isCaptainExists) {
-      res.status(400).json({
+      res.status(401).json({
         message: "Captain already exists!",
       });
       return; // Early exit
@@ -57,11 +57,16 @@ const createCaptain: RequestHandler = async (req: Request, res: Response) => {
     // Generate a token
     const token = generateToken(newCaptain.id, newCaptain.email);
 
+    const sanitizedCaptain = {
+      id: newCaptain.id,
+      email: newCaptain.email,
+    };
+
     // Send the response
     res.status(201).json({
       message: "Captain created successfully!",
       token,
-      newCaptain,
+      captain: sanitizedCaptain,
     });
   } catch (error) {
     // Handle errors
@@ -96,7 +101,7 @@ const loginCaptain: RequestHandler = async (req: Request, res: Response) => {
   const isPasswordCorrect = await comparePassword(password, captain.password);
 
   if (!isPasswordCorrect) {
-    res.status(400).json({
+    res.status(401).json({
       message: "Invalid Credentials!",
     });
     return;
@@ -106,9 +111,15 @@ const loginCaptain: RequestHandler = async (req: Request, res: Response) => {
 
   res.cookie("token", token);
 
+  const sanitizedCaptain = {
+    id: captain.id,
+    email: captain.email,
+  };
+
   res.status(200).json({
     message: "Captain logged in successfully!",
     token,
+    captain: sanitizedCaptain,
   });
 };
 
@@ -124,7 +135,7 @@ const Captain = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
-      message: "Captain authenticated!",
+      message: "Captain Authenticated!",
       captain: captainData,
     });
   } catch (error) {
@@ -149,7 +160,7 @@ const logoutCaptain = async (req: Request, res: Response) => {
     res.clearCookie("token");
 
     res.status(200).json({
-      msg: "Captain has been logged out successfully!",
+      message: "Captain logged out successfully!",
     });
   } catch (error) {
     res.status(500).json({
