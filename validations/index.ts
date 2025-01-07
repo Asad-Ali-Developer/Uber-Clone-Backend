@@ -12,6 +12,9 @@ import mapQueryValidaiton from "./map/mapQueryValidaiton";
 import mapDistanceTimeValidation from "./map/mapDistanceTimeValidation";
 import mapAddressingSuggestionsValidation from "./map/maAddressingSuggestions.validation"
 
+// Ride Validations
+import createRideValidation from "./ride/createRide.validation"
+
 export {
   registerValidation,
   loginValidation,
@@ -21,4 +24,5 @@ export {
   mapQueryValidaiton,
   mapDistanceTimeValidation,
   mapAddressingSuggestionsValidation,
+  createRideValidation,
 };

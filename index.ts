@@ -8,6 +8,7 @@ import "./config/passportJWTStrategy";
 import cookieParser from "cookie-parser";
 import { captainRoutes } from "./routes";
 import { mapRoutes } from "./routes";
+import { ridesRoutes } from "./routes";
 
 dotenv.config();
 
@@ -27,7 +28,9 @@ app.use("/api/users", userRoutes);
 
 app.use("/api/captains", captainRoutes);
 
-app.use("/api", mapRoutes);
+app.use("/api/maps", mapRoutes);
+
+app.use("/api/rides", ridesRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World with TypeScript!");
