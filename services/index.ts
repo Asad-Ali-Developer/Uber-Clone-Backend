@@ -4,8 +4,9 @@ import hashPassword from "./hashPassword.service";
 import comparePassword from "./comparePassword.service";
 import formatDuration from "./formatDuration.service";
 import haversineDistance from "./haversineDistance.service";
-import getDistanceTimeByOSRM from "./getDistanceTimeBYOSRM.service";
+import getDistanceTimeOSRM from "./getDistanceTimeOSRM.service"
 import getGeocodeCoordinatesByAddress from "./getGeocodeCoordinatesByAddress.service";
+import fareCalculator from "./fareCalculator.service"
 
 export {
   generateToken,
@@ -14,6 +15,7 @@ export {
   comparePassword,
   formatDuration,
   haversineDistance,
-  getDistanceTimeByOSRM,
+  getDistanceTimeOSRM,
   getGeocodeCoordinatesByAddress,
+  fareCalculator,
 };

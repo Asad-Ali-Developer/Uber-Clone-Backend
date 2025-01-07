@@ -1,11 +1,15 @@
 import axios from "axios";
-import formatDuration from "./formatDuration.service";
 
-const getDistanceTimeByOSRM = async (
+type OSRMResponse = {
+  distance: number; // Distance in kilometers or meters
+  duration: number; // Duration in minutes or seconds
+};
+
+const getDistanceTimeOSRM = async (
   origin: { lat: number; lon: number },
   destination: { lat: number; lon: number },
   vehicleType: string
-) => {
+): Promise<OSRMResponse> => {
   const url = `https://router.project-osrm.org/route/v1/${vehicleType}/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=false&steps=false`;
 
   // profile: "driving" | "walking" | "cycling" = "cycling"
@@ -18,12 +22,10 @@ const getDistanceTimeByOSRM = async (
 
   const { distance, duration } = response.data.routes[0];
 
-  const formattedDuration = formatDuration(duration);
-
   return {
-    distance: (distance / 1000).toFixed(2), // Convert meters to kilometers
-    duration: formattedDuration, // Convert seconds to minutes
+    distance,
+    duration,
   };
 };
 
-export default getDistanceTimeByOSRM;
+export default getDistanceTimeOSRM;

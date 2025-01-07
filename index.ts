@@ -2,13 +2,12 @@ import express, { Request, Response, Express } from "express";
 const app: Express = express();
 import dotenv from "dotenv";
 import cors from "cors";
-import { userRoutes } from "./routes";
+import { ridesRoutes, userRoutes } from "./routes";
 import passport from "passport";
 import "./config/passportJWTStrategy";
 import cookieParser from "cookie-parser";
 import { captainRoutes } from "./routes";
 import { mapRoutes } from "./routes";
-import { ridesRoutes } from "./routes";
 
 dotenv.config();
 

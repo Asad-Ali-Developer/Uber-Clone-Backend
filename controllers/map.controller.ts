@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import {
-  getDistanceTimeByOSRM,
+  formatDuration,
+  getDistanceTimeOSRM,
   getGeocodeCoordinatesByAddress,
   haversineDistance,
 } from "../services";
@@ -102,7 +103,7 @@ const getDistanceAndTime = async (
     );
 
     // profile: "driving" | "walking" | "cycling" = "cycling"
-    const { distance, duration } = await getDistanceTimeByOSRM(
+    const { distance, duration } = await getDistanceTimeOSRM(
       originCoordinates,
       destinationCoordinates,
       vehicleType as string
@@ -116,12 +117,15 @@ const getDistanceAndTime = async (
       destinationCoordinates.lon
     );
 
+    const formattedDistanceForOSRM = (distance / 1000).toFixed(2);
+    const formattedDurationForORSM = formatDuration(duration);
+
     res.status(200).json({
       distance: distanced.toFixed(2), // Distance in kilometers
       origin: originCoordinates,
       destination: destinationCoordinates,
-      distanceByOSRM: distance,
-      durationByOSRM: duration,
+      distanceByOSRM: formattedDistanceForOSRM,
+      durationByOSRM: formattedDurationForORSM,
     });
   } catch (error) {
     console.error("Error calculating distance and time:", error);
