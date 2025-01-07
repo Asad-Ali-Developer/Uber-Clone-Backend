@@ -8,5 +8,5 @@ export {
     generateToken,
     findUserById,
     hashPassword,
-    comparePassword
+    comparePassword,
 }
