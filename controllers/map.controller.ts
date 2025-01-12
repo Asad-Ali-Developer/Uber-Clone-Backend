@@ -86,7 +86,7 @@ const getDistanceAndTime = async (
   const { origin, destination, vehicleType } = req.query;
   // profile: "driving" | "walking" | "cycling" = "cycling"
 
-  if (!origin || !destination) {
+  if (!origin || !destination || !vehicleType) {
     res
       .status(400)
       .json({ error: "Both origin and destination addresses are required" });
@@ -105,8 +105,7 @@ const getDistanceAndTime = async (
     // profile: "driving" | "walking" | "cycling" = "cycling"
     const { distance, duration } = await getDistanceTimeOSRM(
       originCoordinates,
-      destinationCoordinates,
-      vehicleType as string
+      destinationCoordinates
     );
 
     // Calculate distance using the Haversine formula

@@ -7,7 +7,7 @@ type OSRMResponse = {
 
 const getDistanceTimeOSRM = async (
   origin: { lat: number; lon: number },
-  destination: { lat: number; lon: number },
+  destination: { lat: number; lon: number }
 ): Promise<OSRMResponse> => {
   const url = `https://router.project-osrm.org/route/v1/driving/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=false&steps=false`;
 
@@ -25,7 +25,7 @@ const getDistanceTimeOSRM = async (
   const duraitonInMinutes = duration / 60;
 
   return {
-    distance: distanceInKM,
+    distance: Math.round(distanceInKM * 10) / 10,
     duration: duraitonInMinutes,
   };
 };
