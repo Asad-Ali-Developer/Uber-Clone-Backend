@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { rideModel } from "../models";
-import { fareCalculator, getGeocodeCoordinatesByAddress } from "../services";
+import {
+  fareCalculator,
+  getDistanceTimeOSRM,
+  getGeocodeCoordinatesByAddress,
+  otpGenerator,
+} from "../services";
 
 const createRide = async (req: Request, res: Response): Promise<void> => {
   // Check for validation errors
@@ -27,12 +32,14 @@ const createRide = async (req: Request, res: Response): Promise<void> => {
       destination
     );
 
-    // Calculate fare for the ride
-    const fare = await fareCalculator(
+    //  Calculate distance and time between origin and destination
+    const { distance, duration } = await getDistanceTimeOSRM(
       originCoordinate,
-      destinationCoordinate,
-      vehicleType
+      destinationCoordinate
     );
+
+    // Calculate fare for the ride
+    const fare = fareCalculator(distance, duration, vehicleType);
 
     // Create the ride record
     const ride = await rideModel.create({
@@ -40,10 +47,19 @@ const createRide = async (req: Request, res: Response): Promise<void> => {
       origin,
       destination,
       fare,
+      otp: otpGenerator(6)
     });
 
     // Send response with the ride data
-    res.status(201).json({ message: "Ride created successfully", ride });
+    res
+      .status(201)
+      .json({
+        message: "Ride created successfully",
+        fare,
+        ride,
+        distance,
+        duration,
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

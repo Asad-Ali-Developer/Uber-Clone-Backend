@@ -7,6 +7,7 @@ import haversineDistance from "./haversineDistance.service";
 import getDistanceTimeOSRM from "./getDistanceTimeOSRM.service"
 import getGeocodeCoordinatesByAddress from "./getGeocodeCoordinatesByAddress.service";
 import fareCalculator from "./fareCalculator.service"
+import otpGenerator from "./otpGenerator.service";
 
 export {
   generateToken,
@@ -18,4 +19,5 @@ export {
   getDistanceTimeOSRM,
   getGeocodeCoordinatesByAddress,
   fareCalculator,
+  otpGenerator,
 };

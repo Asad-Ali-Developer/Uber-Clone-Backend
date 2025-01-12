@@ -8,9 +8,8 @@ type OSRMResponse = {
 const getDistanceTimeOSRM = async (
   origin: { lat: number; lon: number },
   destination: { lat: number; lon: number },
-  vehicleType: string
 ): Promise<OSRMResponse> => {
-  const url = `https://router.project-osrm.org/route/v1/${vehicleType}/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=false&steps=false`;
+  const url = `https://router.project-osrm.org/route/v1/driving/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=false&steps=false`;
 
   // profile: "driving" | "walking" | "cycling" = "cycling"
 
@@ -22,9 +21,12 @@ const getDistanceTimeOSRM = async (
 
   const { distance, duration } = response.data.routes[0];
 
+  const distanceInKM = distance / 1000;
+  const duraitonInMinutes = duration / 60;
+
   return {
-    distance,
-    duration,
+    distance: distanceInKM,
+    duration: duraitonInMinutes,
   };
 };
 

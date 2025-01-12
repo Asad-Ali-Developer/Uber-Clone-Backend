@@ -16,9 +16,7 @@ const authCaptainMiddleware = async (
   try {
     // Extract token from cookies or authorization header
     const tokenFromCookie = req.cookies?.token;
-    const tokenFromHeader = req.headers.authorization
-      ?.replace("Bearer ", "")
-      .trim();
+    const tokenFromHeader = req.headers.authorization?.split(" ")[1]; // Both are good
 
     const token = tokenFromHeader || tokenFromCookie;
 
@@ -54,6 +52,7 @@ const authCaptainMiddleware = async (
 
     // Attach captain to the request object for subsequent middleware/routes
     req.captain = captainLogged;
+    req.captainId = captainLogged._id.toString();
 
     next(); // Proceed to the next middleware or route handler
   } catch (error) {

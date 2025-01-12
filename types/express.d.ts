@@ -12,7 +12,7 @@ declare global {
        * Based on the schema of CaptainModel (CaptainDocument)
        */
       captain?: CaptainDocument;
-
+      captainId?: string
       /**
        * Property for authenticated user
        * Based on the schema of UserModel (UserDocument)

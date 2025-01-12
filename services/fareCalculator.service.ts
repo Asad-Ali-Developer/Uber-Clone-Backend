@@ -1,5 +1,3 @@
-import getDistanceTimeOSRM from "./getDistanceTimeOSRM.service";
-
 type FareRates = {
   [vehicleType: string]: {
     baseFare: number;
@@ -11,14 +9,14 @@ type FareRates = {
 // Fare rates for different vehicle types
 const fareRates: FareRates = {
   car: {
-    baseFare: 100, // Base fare in your currency
-    perKmRate: 10, // Per kilometer rate
-    perMinuteRate: 2, // Per minute rate
+    baseFare: 150,
+    perKmRate: 30,
+    perMinuteRate: 10,
   },
   bike: {
     baseFare: 50,
-    perKmRate: 15,
-    perMinuteRate: 3,
+    perKmRate: 10,
+    perMinuteRate: 2,
   },
   auto: {
     baseFare: 40,
@@ -27,39 +25,34 @@ const fareRates: FareRates = {
   },
 };
 
-const fareCalculator = async (
-  origin: { lat: number; lon: number },
-  destination: { lat: number; lon: number },
-  vehicleType: string
-) => {
-  const results: { [vehicleType: string]: number } = {}; // Object to hold fares for all vehicle types
-
-  // Get the distance and duration from OSRM service
-  const { distance, duration } = await getDistanceTimeOSRM(
-    origin,
-    destination,
-    vehicleType
-  );
-
-  if (typeof distance !== "number" || typeof duration !== "number") {
-    throw new Error("Invalid distance or duration returned from OSRM service");
+const fareCalculator = (
+  distance: number, // Distance in kilometers
+  duration: number, // Duration in minutes
+  vehicleType: string // Vehicle type (e.g., "car", "bike", "auto")
+): number => {
+  // Validate inputs
+  if (typeof distance !== "number" || distance <= 0) {
+    throw new Error("Invalid distance value provided");
   }
 
-  // Iterate over each vehicle type to calculate fares
-  for (const vehicleType in fareRates) {
-    const rates = fareRates[vehicleType];
+  console.log(distance / 1000);
 
-    // Calculate the fare for this vehicle type
-    const totalFare =
-      rates.baseFare +
-      distance * rates.perKmRate +
-      duration * rates.perMinuteRate;
-
-    // Store the calculated fare in the results object
-    results[vehicleType] = Math.round(totalFare); // Round the fare
+  if (typeof duration !== "number" || duration < 0) {
+    throw new Error("Invalid duration value provided");
   }
 
-  return results; // Return an object containing fares for all vehicle types
+  if (!fareRates.hasOwnProperty(vehicleType)) {
+    throw new Error(`Invalid vehicle type: ${vehicleType}`);
+  }
+
+  const rates = fareRates[vehicleType];
+
+  const totalFare =
+    rates.baseFare +
+    distance * rates.perKmRate + // distance already in km
+    duration * rates.perMinuteRate;
+
+  return Math.round(totalFare); // Round to nearest integer
 };
 
 export default fareCalculator;
