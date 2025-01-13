@@ -38,7 +38,7 @@ const getAddressCoordinate = async (
     return;
   }
 
-  const url = `https://api.opencagedata.com/geocode/v1/json`;
+  const url = process.env.OPENCAGE_URL!;
 
   try {
     const response: ResponseType = await axios.get(url, {
@@ -83,10 +83,10 @@ const getDistanceAndTime = async (
     return;
   }
 
-  const { origin, destination, vehicleType } = req.query;
+  const { origin, destination } = req.query;
   // profile: "driving" | "walking" | "cycling" = "cycling"
 
-  if (!origin || !destination || !vehicleType) {
+  if (!origin || !destination) {
     res
       .status(400)
       .json({ error: "Both origin and destination addresses are required" });
@@ -116,14 +116,13 @@ const getDistanceAndTime = async (
       destinationCoordinates.lon
     );
 
-    const formattedDistanceForOSRM = (distance / 1000).toFixed(2);
     const formattedDurationForORSM = formatDuration(duration);
 
     res.status(200).json({
       distance: distanced.toFixed(2), // Distance in kilometers
       origin: originCoordinates,
       destination: destinationCoordinates,
-      distanceByOSRM: formattedDistanceForOSRM,
+      distanceByOSRM: distance,
       durationByOSRM: formattedDurationForORSM,
     });
   } catch (error) {

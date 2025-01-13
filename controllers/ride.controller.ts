@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import { rideModel } from "../models";
 import {
   fareCalculator,
+  formatDuration,
   getDistanceTimeOSRM,
   getGeocodeCoordinatesByAddress,
   otpGenerator,
@@ -50,6 +51,8 @@ const createRide = async (req: Request, res: Response): Promise<void> => {
       otp: otpGenerator(6)
     });
 
+    const formattedDuration = formatDuration(duration);
+
     // Send response with the ride data
     res
       .status(201)
@@ -59,6 +62,7 @@ const createRide = async (req: Request, res: Response): Promise<void> => {
         ride,
         distance,
         duration,
+        formattedDuration: formattedDuration
       });
   } catch (error) {
     console.error(error);

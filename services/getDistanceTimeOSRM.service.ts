@@ -25,7 +25,7 @@ const getDistanceTimeOSRM = async (
   const duraitonInMinutes = duration / 60;
 
   return {
-    distance: Math.round(distanceInKM * 10) / 10,
+    distance: Math.round(distanceInKM),
     duration: duraitonInMinutes,
   };
 };

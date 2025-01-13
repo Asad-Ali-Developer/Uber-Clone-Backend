@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const getGeocodeCoordinatesByAddress = async (address: string) => {
-  const url = `https://api.opencagedata.com/geocode/v1/json`;
+  const url = process.env.OPENCAGE_URL!;
   const response = await axios.get(url, {
     params: {
       key: process.env.OPENCAGE_API_KEY,

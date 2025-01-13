@@ -1,9 +1,25 @@
-const formatDuration = (durationInSeconds: number): string => {
-  const hours = Math.floor(durationInSeconds / 3600); // 3600 seconds in an hour
-  const minutes = Math.floor((durationInSeconds % 3600) / 60); // Remaining minutes after hours are accounted for
+const formatDuration = (durationInMinutes: number): string => {
+  if (durationInMinutes < 0) {
+    throw new Error("Duration must be a non-negative number.");
+  }
 
-  // Return formatted duration
-  return `${hours} hour${hours !== 1 ? "s" : ""} ${minutes} minute${
+  const hours = Math.floor(durationInMinutes / 60); // Total hours
+  const minutes = Math.round(durationInMinutes % 60); // Remaining minutes after hours
+
+  // Handle cases with 0 hours and/or 0 minutes appropriately
+  if (hours === 0 && minutes === 0) {
+    return "less than a minute";
+  }
+
+  if (hours === 0) {
+    return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
+  }
+
+  if (minutes === 0) {
+    return `${hours} hour${hours !== 1 ? "s" : ""}`;
+  }
+
+  return `${hours} hour${hours !== 1 ? "s" : ""} and ${minutes} minute${
     minutes !== 1 ? "s" : ""
   }`;
 };
