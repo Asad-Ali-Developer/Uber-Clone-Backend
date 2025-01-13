@@ -2,7 +2,7 @@ import express, { Request, Response, Express } from "express";
 const app: Express = express();
 import dotenv from "dotenv";
 import cors from "cors";
-import { userRoutes } from "./routes";
+import { ridesRoutes, userRoutes } from "./routes";
 import passport from "passport";
 import "./config/passportJWTStrategy";
 import cookieParser from "cookie-parser";
@@ -27,7 +27,9 @@ app.use("/api/users", userRoutes);
 
 app.use("/api/captains", captainRoutes);
 
-app.use("/api", mapRoutes);
+app.use("/api/maps", mapRoutes);
+
+app.use("/api/rides", ridesRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World with TypeScript!");

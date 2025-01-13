@@ -51,6 +51,7 @@ const authUserMiddleware = async (
 
     // Attach user to the request object
     req.user = user;
+    req.userId = user._id.toString();
 
     next(); // Proceed to the next middleware or route handler
   } catch (error) {

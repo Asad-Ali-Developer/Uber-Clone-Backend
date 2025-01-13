@@ -4,5 +4,6 @@
 import userModel from "./userModel";
 import blacklistTokenModel from "./blacklistTokenModel";
 import captainModel from "./captainModel";
+import rideModel from "./rideModel";
 
-export { userModel, blacklistTokenModel, captainModel };
+export { userModel, blacklistTokenModel, captainModel, rideModel };

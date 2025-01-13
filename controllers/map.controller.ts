@@ -1,7 +1,13 @@
 import axios from "axios";
-import { Request, Response, NextFunction } from "express";
-import { validationResult } from "express-validator";
 import dotenv from "dotenv";
+import { NextFunction, Request, Response } from "express";
+import { validationResult } from "express-validator";
+import {
+  formatDuration,
+  getDistanceTimeOSRM,
+  getGeocodeCoordinatesByAddress,
+  haversineDistance,
+} from "../services";
 dotenv.config();
 
 interface ResponseType {
@@ -9,8 +15,6 @@ interface ResponseType {
     results: any[];
   };
 }
-
-const OPENCAGE_API_KEY = process.env.OPENCAGE_API_KEY;
 
 // Controller to get coordinates from an address
 const getAddressCoordinate = async (
@@ -34,12 +38,12 @@ const getAddressCoordinate = async (
     return;
   }
 
-  const url = `https://api.opencagedata.com/geocode/v1/json`;
+  const url = process.env.OPENCAGE_URL!;
 
   try {
     const response: ResponseType = await axios.get(url, {
       params: {
-        key: OPENCAGE_API_KEY,
+        key: process.env.OPENCAGE_API_KEY,
         q: address,
         limit: 1,
         no_annotations: 1,
@@ -67,118 +71,6 @@ const getAddressCoordinate = async (
   }
 };
 
-// const getAddressCoordinate = async (req: Request, res: Response) => {
-//   // Validate query parameters
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     return res.status(400).json({ errors: errors.array() });
-//   }
-
-//   const { address } = req.query;
-
-//   if (!address || typeof address !== "string") {
-//     return res.status(400).json({
-//       error: "Address query parameter is required and must be a string",
-//     });
-//   }
-
-//   try {
-//     // Use Nominatim (or other geocoding service) to get coordinates from an address
-//     const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-//       address
-//     )}`;
-//     const geocodeResponse = await axios.get(geocodeUrl);
-
-//     if (geocodeResponse.data.length > 0) {
-//       const { lat, lon, display_name } = geocodeResponse.data[0]; // Get latitude and longitude
-//       return res.json({ lat, lon, display_name }); // Send the coordinates back as a response
-//     } else {
-//       return res.status(404).json({ error: "Address not found" });
-//     }
-//   } catch (error) {
-//     console.error("Error fetching coordinates:", error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
-// Haversine formula to calculate the distance between two coordinates
-const haversineDistance = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number => {
-  const R = 6371; // Radius of the Earth in kilometers
-  const toRadians = (degrees: number) => degrees * (Math.PI / 180);
-
-  const dLat = toRadians(lat2 - lat1);
-  const dLon = toRadians(lon2 - lon1);
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // Distance in kilometers
-};
-
-// Helper function to geocode an address
-const geocodeAddress = async (address: string) => {
-  const url = `https://api.opencagedata.com/geocode/v1/json`;
-  const response = await axios.get(url, {
-    params: {
-      key: OPENCAGE_API_KEY,
-      q: address,
-      limit: 1,
-    },
-  });
-
-  if (response.data.results.length === 0) {
-    throw new Error("No results found for the address");
-  }
-
-  const { lat, lng } = response.data.results[0].geometry;
-  const { formatted } = response.data.results[0];
-  return { lat, lon: lng, location: formatted }; // Rename 'lng' to 'lon' for consistency
-};
-
-const formatDuration = (durationInSeconds: number): string => {
-  const hours = Math.floor(durationInSeconds / 3600); // 3600 seconds in an hour
-  const minutes = Math.floor((durationInSeconds % 3600) / 60); // Remaining minutes after hours are accounted for
-
-  // Return formatted duration
-  return `${hours} hour${hours !== 1 ? "s" : ""} ${minutes} minute${
-    minutes !== 1 ? "s" : ""
-  }`;
-};
-
-const getTravelDetailsOSRM = async (
-  origin: { lat: number; lon: number },
-  destination: { lat: number; lon: number },
-  vehicleType: string
-) => {
-  const url = `https://router.project-osrm.org/route/v1/${vehicleType}/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=false&steps=false`;
-
-  // profile: "driving" | "walking" | "cycling" = "cycling"
-
-  const response = await axios.get(url);
-
-  if (response.data.routes.length === 0) {
-    throw new Error("No routes found between the given locations");
-  }
-
-  const { distance, duration } = response.data.routes[0];
-
-  const formattedDuration = formatDuration(duration);
-
-  return {
-    distance: (distance / 1000).toFixed(2), // Convert meters to kilometers
-    duration: formattedDuration, // Convert seconds to minutes
-  };
-};
-
 // Controller to get distance and travel time between two addresses
 const getDistanceAndTime = async (
   req: Request,
@@ -191,7 +83,7 @@ const getDistanceAndTime = async (
     return;
   }
 
-  const { origin, destination, vehicleType } = req.query;
+  const { origin, destination } = req.query;
   // profile: "driving" | "walking" | "cycling" = "cycling"
 
   if (!origin || !destination) {
@@ -203,14 +95,17 @@ const getDistanceAndTime = async (
 
   try {
     // Geocode origin and destination
-    const originCoordinates = await geocodeAddress(origin as string);
-    const destinationCoordinates = await geocodeAddress(destination as string);
+    const originCoordinates = await getGeocodeCoordinatesByAddress(
+      origin as string
+    );
+    const destinationCoordinates = await getGeocodeCoordinatesByAddress(
+      destination as string
+    );
 
     // profile: "driving" | "walking" | "cycling" = "cycling"
-    const { distance, duration } = await getTravelDetailsOSRM(
+    const { distance, duration } = await getDistanceTimeOSRM(
       originCoordinates,
-      destinationCoordinates,
-      vehicleType as string
+      destinationCoordinates
     );
 
     // Calculate distance using the Haversine formula
@@ -221,12 +116,14 @@ const getDistanceAndTime = async (
       destinationCoordinates.lon
     );
 
+    const formattedDurationForORSM = formatDuration(duration);
+
     res.status(200).json({
       distance: distanced.toFixed(2), // Distance in kilometers
       origin: originCoordinates,
       destination: destinationCoordinates,
       distanceByOSRM: distance,
-      durationByOSRM: duration,
+      durationByOSRM: formattedDurationForORSM,
     });
   } catch (error) {
     console.error("Error calculating distance and time:", error);
