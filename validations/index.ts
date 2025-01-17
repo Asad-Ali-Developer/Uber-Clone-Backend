@@ -14,6 +14,7 @@ import mapAddressingSuggestionsValidation from "./map/maAddressingSuggestions.va
 
 // Ride Validations
 import createRideValidation from "./ride/createRide.validation"
+import getFareValidation from "./ride/getFare.validation";
 
 export {
   registerValidation,
@@ -25,4 +26,5 @@ export {
   mapDistanceTimeValidation,
   mapAddressingSuggestionsValidation,
   createRideValidation,
+  getFareValidation,
 };

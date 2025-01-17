@@ -17,6 +17,7 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
           .json({ message: "Unauthorized", error: info?.message });
       }
       req.user = user; // Attach the authenticated user to the request object
+      req.userId = user; // Attach the authenticated user ID to the request object
       next();
     }
   )(req, res, next); // Invoke the middleware

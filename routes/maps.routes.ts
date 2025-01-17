@@ -1,12 +1,13 @@
-import express from "express";
-const router = express.Router();
-import { authUserMiddleware } from "../middlewares";
+import { Router } from "express";
 import mapController from "../controllers/map.controller";
+import { authUserMiddleware } from "../middlewares";
 import {
+  mapAddressingSuggestionsValidation,
   mapDistanceTimeValidation,
   mapQueryValidaiton,
-  mapAddressingSuggestionsValidation,
 } from "../validations";
+
+const router: Router = Router();
 
 const { getAddressCoordinate, getDistanceAndTime, getAddressSuggestions } =
   mapController;

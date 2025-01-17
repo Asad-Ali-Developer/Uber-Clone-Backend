@@ -1,13 +1,12 @@
-import express, { Request, Response, Express } from "express";
-const app: Express = express();
-import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import cors from "cors";
-import { ridesRoutes, userRoutes } from "./routes";
+import dotenv from "dotenv";
+import express, { Express, Request, Response } from "express";
 import passport from "passport";
 import "./config/passportJWTStrategy";
-import cookieParser from "cookie-parser";
-import { captainRoutes } from "./routes";
-import { mapRoutes } from "./routes";
+import { captainRoutes, mapRoutes, ridesRoutes, userRoutes } from "./routes";
+import { listRoutes } from "./services";
+const app: Express = express();
 
 dotenv.config();
 
@@ -30,6 +29,9 @@ app.use("/api/captains", captainRoutes);
 app.use("/api/maps", mapRoutes);
 
 app.use("/api/rides", ridesRoutes);
+
+// Function to log all routes
+listRoutes(app);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World with TypeScript!");

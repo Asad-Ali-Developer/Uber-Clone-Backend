@@ -1,15 +1,15 @@
-import express from "express";
+import { Router } from "express";
+import { captainController } from "../controllers";
+import { authCaptainMiddleware } from "../middlewares";
 import {
   captainRegisterValidation,
   loginCaptainValidation,
 } from "../validations";
-import { captainController } from "../controllers";
-import { authCaptainMiddleware } from "../middlewares";
 
 const { createCaptain, loginCaptain, Captain, logoutCaptain } =
   captainController;
 
-const router = express.Router();
+const router: Router = Router();
 
 router.post("/register", captainRegisterValidation, createCaptain);
 

@@ -8,6 +8,8 @@ import getDistanceTimeOSRM from "./getDistanceTimeOSRM.service"
 import getGeocodeCoordinatesByAddress from "./getGeocodeCoordinatesByAddress.service";
 import fareCalculator from "./fareCalculator.service"
 import otpGenerator from "./otpGenerator.service";
+import listRoutes from "./listRoutes.service";
+import logMessage from "./logMessage.service";
 
 export {
   generateToken,
@@ -20,4 +22,6 @@ export {
   getGeocodeCoordinatesByAddress,
   fareCalculator,
   otpGenerator,
+  listRoutes,
+  logMessage,
 };
