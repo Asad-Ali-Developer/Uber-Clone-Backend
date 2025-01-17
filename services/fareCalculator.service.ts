@@ -28,31 +28,45 @@ const fareRates: FareRates = {
 const fareCalculator = (
   distance: number, // Distance in kilometers
   duration: number, // Duration in minutes
-  vehicleType: string // Vehicle type (e.g., "car", "bike", "auto")
-): number => {
+  vehicleType?: string // Optional vehicle type (e.g., "car", "bike", "auto")
+): number | { [key: string]: number } => {
   // Validate inputs
   if (typeof distance !== "number" || distance <= 0) {
     throw new Error("Invalid distance value provided");
   }
 
-  console.log(distance / 1000);
-
   if (typeof duration !== "number" || duration < 0) {
     throw new Error("Invalid duration value provided");
   }
 
-  if (!fareRates.hasOwnProperty(vehicleType)) {
-    throw new Error(`Invalid vehicle type: ${vehicleType}`);
+  // Calculate fare for a specific vehicle type
+  if (vehicleType) {
+    if (!fareRates.hasOwnProperty(vehicleType)) {
+      throw new Error(`Invalid vehicle type: ${vehicleType}`);
+    }
+
+    const rates = fareRates[vehicleType];
+    const totalFare =
+      rates.baseFare +
+      distance * rates.perKmRate +
+      duration * rates.perMinuteRate;
+
+    return Math.round(totalFare); // Round to nearest integer
   }
 
-  const rates = fareRates[vehicleType];
+  // Calculate fares for all vehicle types
+  const fares: { [key: string]: number } = {};
+  for (const type in fareRates) {
+    const rates = fareRates[type];
+    fares[type] =
+      Math.round(
+        rates.baseFare +
+          distance * rates.perKmRate +
+          duration * rates.perMinuteRate
+      );
+  }
 
-  const totalFare =
-    rates.baseFare +
-    distance * rates.perKmRate + // distance already in km
-    duration * rates.perMinuteRate;
-
-  return Math.round(totalFare); // Round to nearest integer
+  return fares; // Return an object with fares for all vehicle types
 };
 
 export default fareCalculator;
