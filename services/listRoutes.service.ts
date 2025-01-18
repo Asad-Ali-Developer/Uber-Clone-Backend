@@ -11,13 +11,23 @@ const listRoutes = (app: Express): void => {
         method: Object.keys(middleware.route.methods)[0].toUpperCase(),
         path: middleware.route.path,
       });
-    } else if (middleware.name === "router") {
+    } else if (middleware.name === "router" && middleware.handle.stack) {
       // Routes added via router
+      const basePath = middleware.regexp
+        .toString()
+        .replace(/^\/\^/, "") // Remove leading "/^"
+        .replace(/\\\//g, "/") // Replace escaped slashes
+        .replace(/\?\(\?=\/\|\$\)\//g, "") // Remove "?(?=/|$)"
+        .replace(/\$\//, "") // Remove trailing "$/"
+        .replace(/^\/api/, "") // Remove "/api"
+        .replace(/\/i/g, "") // Remove all "/i" occurrences from the path
+        .replace(/^\/maps/, "/maps"); // Ensure /maps stays as is
+
       middleware.handle.stack.forEach((handler: any) => {
         if (handler.route) {
           routes.push({
             method: Object.keys(handler.route.methods)[0].toUpperCase(),
-            path: handler.route.path,
+            path: `${basePath}${handler.route.path}`,
           });
         }
       });
@@ -27,9 +37,11 @@ const listRoutes = (app: Express): void => {
   // Log the routes
   logMessage("Mapped routes:", "LOG");
   routes.forEach((route) =>
-    logMessage(`[RouterExplorer] Mapped {${route.path}, {${route.method}}} route`, "LOG")
+    logMessage(
+      `[RouterExplorer] Mapped {${route.path}, ${route.method}} route`,
+      "LOG"
+    )
   );
 };
-
 
 export default listRoutes;
