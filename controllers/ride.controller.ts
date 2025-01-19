@@ -92,6 +92,8 @@ const getFare = async (req: Request, res: Response): Promise<void> => {
       destinationCoordinate
     );
 
+    const formattedDuration = formatDuration(duration);
+
     // Calculate fare for the ride
     const fare = fareCalculator(distance, duration);
 
@@ -100,6 +102,7 @@ const getFare = async (req: Request, res: Response): Promise<void> => {
       fare,
       distance,
       duration,
+      formattedDuration
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
