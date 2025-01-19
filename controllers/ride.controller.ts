@@ -18,7 +18,7 @@ const createRide = async (req: Request, res: Response): Promise<void> => {
 
   const { origin, destination, vehicleType } = req.body;
 
-  console.log(req.body);
+  // console.log(req.body);
 
   try {
     // Ensure userId is set by the authentication middleware
