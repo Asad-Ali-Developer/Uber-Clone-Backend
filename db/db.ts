@@ -4,7 +4,7 @@ import { logMessage } from "../services";
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI!);
+    await mongoose.connect(process.env.MONGODB_URI_OFFLINE!);
     // console.log("MongoDB connected successfully!");
     // console.log(yellow("[MongoDB] Connected successfully!"))
     logMessage("[MongoDB] MongoDB connected successfully!");
