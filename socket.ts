@@ -7,7 +7,7 @@ let io: Server;
 const initializeSocket = (server: http.Server) => {
   io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: "http://localhost:5173",
       methods: ["GET", "POST"],
     },
   });
@@ -17,6 +17,8 @@ const initializeSocket = (server: http.Server) => {
 
     socket.on("join", async (data) => {
       const { userId, userType } = data;
+
+      console.log(userId);
 
       if (userType === "user") {
         await userModel.findOneAndUpdate(userId, {
