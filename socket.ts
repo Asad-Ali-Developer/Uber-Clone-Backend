@@ -1,13 +1,13 @@
+import { Server as HttpServer } from "http"; // Importing the HTTP Server
 import { Server } from "socket.io";
-import http from "http";
 import { captainModel, userModel } from "./models";
 
 let io: Server;
 
-const initializeSocket = (server: http.Server) => {
+const initializeSocket = (server: HttpServer) => {
   io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: "http://localhost:5173", // Frontend URL
       methods: ["GET", "POST"],
     },
   });
@@ -17,10 +17,10 @@ const initializeSocket = (server: http.Server) => {
 
     socket.on("join", async (data) => {
       const { userId, userType } = data;
-
       console.log(userId);
 
       if (userType === "user") {
+        console.log(`User ${userId} joined with type ${userType}`);
         await userModel.findOneAndUpdate(userId, {
           socketId: socket.id,
         });

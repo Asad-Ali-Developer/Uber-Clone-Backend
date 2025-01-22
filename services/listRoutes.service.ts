@@ -19,7 +19,7 @@ const listRoutes = (app: Express): void => {
         .replace(/\\\//g, "/") // Replace escaped slashes
         .replace(/\?\(\?=\/\|\$\)\//g, "") // Remove "?(?=/|$)"
         .replace(/\$\//, "") // Remove trailing "$/"
-        .replace(/^\/api/, "") // Remove "/api"
+        // .replace(/^\/api/, "") // Remove "/api"
         .replace(/\/i/g, "") // Remove all "/i" occurrences from the path
         .replace(/^\/maps/, "/maps"); // Ensure /maps stays as is
 
