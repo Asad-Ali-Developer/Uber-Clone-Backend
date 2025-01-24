@@ -4,14 +4,24 @@ import { captainModel, userModel } from "./models";
 
 let io: Server;
 
-enum userTypeEnum {
-  user = "user",
-  captain = "captain",
+interface SocketJoinRoomDataType {
+  userId: string;
+  userType: "user" | "captain";
 }
 
-interface ContextDataComingType {
+interface LocationCooridinates {
+  lat: number;
+  lng: number;
+}
+
+interface SocketUpdateCaptainLocation {
   userId: string;
-  userType: userTypeEnum;
+  location: LocationCooridinates;
+}
+
+interface sendMessageToSocketIdData {
+  event: string;
+  data: any;
 }
 
 const initializeSocket = (server: HttpServer) => {
@@ -23,11 +33,10 @@ const initializeSocket = (server: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`New client connected: ${socket.id}`);
+    // console.log(`New client connected: ${socket.id}`);
 
-    socket.on("join", async (data: ContextDataComingType) => {
+    socket.on("joinRoom", async (data: SocketJoinRoomDataType) => {
       const { userId, userType } = data;
-      console.log(userId);
 
       if (!userId) {
         console.error("Invalid userId: ", userId);
@@ -40,41 +49,73 @@ const initializeSocket = (server: HttpServer) => {
       }
 
       try {
-        if (userType === userTypeEnum.user) {
-          console.log(`User ${userId} joined with type ${userType}`);
-          await userModel.findOneAndUpdate(
-            { _id: userId },
-            {
-              socketId: socket.id,
-            }
+        if (userType === "user") {
+          // For the user connection
+          console.log(
+            `User ${userId} joined with type '${userType}' with socketId: ${socket.id}`
           );
-        } else if (userType === userTypeEnum.captain) {
-          console.log(`User ${userId} joined with type ${userType}`);
-          await captainModel.findOneAndUpdate(
-            { _id: userId },
-            {
-              socketId: socket.id,
-            }
+          await userModel.findByIdAndUpdate(userId, {
+            socketId: socket.id,
+          });
+        } else if (userType === "captain") {
+          // For the captain connection
+          console.log(
+            `Captain ${userId} joined with type '${userType}' with socketId: ${socket.id}`
           );
+          await captainModel.findByIdAndUpdate(userId, {
+            socketId: socket.id,
+          });
         }
       } catch (error) {
         console.log("Error updating the socketId:", error);
       }
 
       socket.on("disconnect", () => {
-        console.log("Client disconnected: ", socket.id);
+        console.log("Client disconnected with socketId: ", socket.id);
       });
     });
 
+    socket.on(
+      "update-captain-location",
+      async (data: SocketUpdateCaptainLocation) => {
+        const { userId, location } = data;
+
+        if (!userId) {
+          console.error("Invalid userId: ", userId);
+          return;
+        }
+
+        if (!location) {
+          console.error("Invalid location: ", location);
+          return;
+        }
+
+        // console.log(location)
+        try {
+          await captainModel.findByIdAndUpdate(userId, {
+            location: {
+              lat: location.lat,
+              lng: location.lng,
+            },
+          });
+        } catch (error) {
+          console.log("Error updating the location:", error);
+        }
+      }
+    );
+
     socket.on("disconnect", () => {
-      console.log(`Client disconnected: ${socket.id}`);
+      console.log(`Client disconnected with socketId: ${socket.id}`);
     });
   });
 };
 
-const sendMessageToSocketId = (socketId: string, message: string) => {
+const sendMessageToSocketId = (
+  socketId: string,
+  message: sendMessageToSocketIdData
+) => {
   if (io) {
-    io.to(socketId).emit("message", message);
+    io.to(socketId).emit(message.event, message.data);
   } else {
     console.error("Socket.io is not initialized.");
   }

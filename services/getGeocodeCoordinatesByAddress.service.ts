@@ -18,7 +18,7 @@ const getGeocodeCoordinatesByAddress = async (address: string) => {
 
   const { lat, lng } = response.data.results[0].geometry;
   const { formatted } = response.data.results[0];
-  return { lat, lon: lng, location: formatted }; // Rename 'lng' to 'lon' for consistency
+  return { lat, lng, location: formatted }; 
 };
 
 export default getGeocodeCoordinatesByAddress;

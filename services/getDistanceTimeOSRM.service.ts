@@ -6,10 +6,10 @@ type OSRMResponse = {
 };
 
 const getDistanceTimeOSRM = async (
-  origin: { lat: number; lon: number },
-  destination: { lat: number; lon: number }
+  origin: { lat: number; lng: number },
+  destination: { lat: number; lng: number }
 ): Promise<OSRMResponse> => {
-  const url = `https://router.project-osrm.org/route/v1/driving/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=false&steps=false`;
+  const url = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=false&steps=false`;
 
   // profile: "driving" | "walking" | "cycling" = "cycling"
 

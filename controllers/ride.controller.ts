@@ -4,10 +4,12 @@ import { rideModel } from "../models";
 import {
   fareCalculator,
   formatDuration,
+  getCaptainInTheRadius,
   getDistanceTimeOSRM,
   getGeocodeCoordinatesByAddress,
   otpGenerator,
 } from "../services";
+import { sendMessageToSocketId } from "../socket";
 
 const createRide = async (req: Request, res: Response): Promise<void> => {
   // Check for validation errors
@@ -62,6 +64,40 @@ const createRide = async (req: Request, res: Response): Promise<void> => {
       duration,
       formattedDuration: formattedDuration,
     });
+
+    // Logics for getting Captains in the specific Radius
+
+    const captainsInRadious = await getCaptainInTheRadius(
+      originCoordinate.lat,
+      originCoordinate.lng,
+      10
+    );
+
+    const rideWithoutOtp = ride.toObject();
+    delete rideWithoutOtp.otp;
+
+    const rideWithUser = await rideModel
+      .findOne({ _id: ride.id })
+      .populate("userId")
+      .setOptions({ strictPopulate: false });
+
+    // console.log(rideWithUser);
+
+    captainsInRadious.map((captain) => {
+      // console.log(captain, rideWithoutOtp);
+
+      const captainSocketId = captain.socketId!;
+
+      sendMessageToSocketId(captainSocketId, {
+        event: "new-ride",
+        data: {
+          rideWithUser,
+          distance,
+          duration,
+          formattedDuration,
+        },
+      });
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -102,7 +138,7 @@ const getFare = async (req: Request, res: Response): Promise<void> => {
       fare,
       distance,
       duration,
-      formattedDuration
+      formattedDuration,
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
