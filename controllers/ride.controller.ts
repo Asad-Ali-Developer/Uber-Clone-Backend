@@ -81,16 +81,21 @@ const createRide = async (req: Request, res: Response): Promise<void> => {
       .populate("userId")
       .setOptions({ strictPopulate: false });
 
-    console.log(rideWithUser);
+    // console.log(rideWithUser);
 
     captainsInRadious.map((captain) => {
-      console.log(captain, rideWithoutOtp);
+      // console.log(captain, rideWithoutOtp);
 
       const captainSocketId = captain.socketId!;
 
       sendMessageToSocketId(captainSocketId, {
         event: "new-ride",
-        data: rideWithUser,
+        data: {
+          rideWithUser,
+          distance,
+          duration,
+          formattedDuration,
+        },
       });
     });
   } catch (error) {
