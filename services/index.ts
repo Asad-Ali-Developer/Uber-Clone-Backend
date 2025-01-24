@@ -10,6 +10,7 @@ import fareCalculator from "./fareCalculator.service"
 import otpGenerator from "./otpGenerator.service";
 import listRoutes from "./listRoutes.service";
 import logMessage from "./logMessage.service";
+import getCaptainInTheRadius from "./getCaptainInTheRadius.service";
 
 export {
   generateToken,
@@ -24,4 +25,5 @@ export {
   otpGenerator,
   listRoutes,
   logMessage,
+  getCaptainInTheRadius,
 };

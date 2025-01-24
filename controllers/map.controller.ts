@@ -111,9 +111,9 @@ const getDistanceAndTime = async (
     // Calculate distance using the Haversine formula
     const distanced = haversineDistance(
       originCoordinates.lat,
-      originCoordinates.lon,
+      originCoordinates.lng,
       destinationCoordinates.lat,
-      destinationCoordinates.lon
+      destinationCoordinates.lng
     );
 
     const formattedDurationForORSM = formatDuration(duration);
