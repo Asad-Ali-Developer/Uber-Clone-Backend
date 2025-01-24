@@ -4,6 +4,16 @@ import { captainModel, userModel } from "./models";
 
 let io: Server;
 
+enum userTypeEnum {
+  user = "user",
+  captain = "captain",
+}
+
+interface ContextDataComingType {
+  userId: string;
+  userType: userTypeEnum;
+}
+
 const initializeSocket = (server: HttpServer) => {
   io = new Server(server, {
     cors: {
@@ -15,19 +25,40 @@ const initializeSocket = (server: HttpServer) => {
   io.on("connection", (socket) => {
     console.log(`New client connected: ${socket.id}`);
 
-    socket.on("join", async (data) => {
+    socket.on("join", async (data: ContextDataComingType) => {
       const { userId, userType } = data;
       console.log(userId);
 
-      if (userType === "user") {
-        console.log(`User ${userId} joined with type ${userType}`);
-        await userModel.findOneAndUpdate(userId, {
-          socketId: socket.id,
-        });
-      } else if (userType === "captain") {
-        await captainModel.findByIdAndUpdate(userId, {
-          socketId: socket.id,
-        });
+      if (!userId) {
+        console.error("Invalid userId: ", userId);
+        return;
+      }
+
+      if (!userType) {
+        console.error("Invalid userType: ", userType);
+        return;
+      }
+
+      try {
+        if (userType === userTypeEnum.user) {
+          console.log(`User ${userId} joined with type ${userType}`);
+          await userModel.findOneAndUpdate(
+            { _id: userId },
+            {
+              socketId: socket.id,
+            }
+          );
+        } else if (userType === userTypeEnum.captain) {
+          console.log(`User ${userId} joined with type ${userType}`);
+          await captainModel.findOneAndUpdate(
+            { _id: userId },
+            {
+              socketId: socket.id,
+            }
+          );
+        }
+      } catch (error) {
+        console.log("Error updating the socketId:", error);
       }
 
       socket.on("disconnect", () => {
