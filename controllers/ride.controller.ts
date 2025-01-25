@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { rideModel } from "../models";
+import { rideModel, userModel } from "../models";
 import {
   fareCalculator,
   formatDuration,
@@ -145,4 +145,62 @@ const getFare = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export default { createRide, getFare };
+const confirmRideByCaptain = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+  }
+
+  const { rideId } = req.body;
+  try {
+    if (!rideId) {
+      res.status(400).json({ message: "Ride ID is missing" });
+      return;
+    }
+
+    await rideModel.findOneAndUpdate(
+      { _id: rideId },
+      { status: "confirmed", captainId: req.captainId },
+      { new: true }
+    );
+
+    const updatedRide = await rideModel
+      .findOne({ _id: rideId })
+      .populate("userId")
+      .setOptions({ strictPopulate: false });
+
+    const userId = updatedRide?.userId?._id.toString() || "";
+
+    const rideUser = await userModel.findById(userId).select("-password");
+
+    const userSocketId = rideUser?.socketId || "";
+
+    sendMessageToSocketId(userSocketId, {
+      event: "confirm-ride-by-captain",
+      data: {
+        updatedRide,
+      },
+    });
+
+    if (!updatedRide) {
+      res.status(404).json({ message: "Ride not found" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Ride confirmed successfully",
+      updatedRide,
+      rideUser,
+      userId,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export default { createRide, getFare, confirmRideByCaptain };

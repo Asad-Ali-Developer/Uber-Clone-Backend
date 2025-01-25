@@ -10,11 +10,12 @@ import loginCaptainValidation from "./captain/loginCaptainValidation";
 // Map Validations
 import mapQueryValidaiton from "./map/mapQueryValidaiton";
 import mapDistanceTimeValidation from "./map/mapDistanceTimeValidation";
-import mapAddressingSuggestionsValidation from "./map/maAddressingSuggestions.validation"
+import mapAddressingSuggestionsValidation from "./map/maAddressingSuggestions.validation";
 
 // Ride Validations
-import createRideValidation from "./ride/createRide.validation"
+import createRideValidation from "./ride/createRide.validation";
 import getFareValidation from "./ride/getFare.validation";
+import confirmRideByCaptainValidation from "./ride/confirmRideByCaptainValidation.validation";
 
 export {
   registerValidation,
@@ -27,4 +28,5 @@ export {
   mapAddressingSuggestionsValidation,
   createRideValidation,
   getFareValidation,
+  confirmRideByCaptainValidation,
 };
