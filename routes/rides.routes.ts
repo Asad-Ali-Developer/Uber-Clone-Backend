@@ -2,12 +2,13 @@ import express from "express";
 import rideController from "../controllers/ride.controller";
 import { authCaptainMiddleware, authUserMiddleware } from "../middlewares";
 import {
-    confirmRideByCaptainValidation,
-    createRideValidation,
+  confirmRideByCaptainValidation,
+  createRideValidation,
+  startRideValidation,
 } from "../validations";
 const router = express.Router();
 
-const { createRide, getFare, confirmRideByCaptain } = rideController;
+const { createRide, getFare, confirmRideByCaptain, startRide } = rideController;
 
 router.post("/create", createRideValidation, authUserMiddleware, createRide);
 
@@ -18,6 +19,13 @@ router.post(
   confirmRideByCaptainValidation,
   authCaptainMiddleware,
   confirmRideByCaptain
+);
+
+router.post(
+  "/start-ride",
+  startRideValidation,
+  authCaptainMiddleware,
+  startRide
 );
 
 export default router;

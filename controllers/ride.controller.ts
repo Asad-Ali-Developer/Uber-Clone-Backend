@@ -204,4 +204,74 @@ const confirmRideByCaptain = async (
   }
 };
 
-export default { createRide, getFare, confirmRideByCaptain };
+const startRide = async (req: Request, res: Response): Promise<void> => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+  }
+
+  const { otp, rideId } = req.body;
+
+  console.log(rideId, otp);
+
+  if (!rideId) {
+    res.status(400).json({ message: "Ride ID is missing" });
+    return;
+  }
+
+  if (!otp) {
+    res.status(400).json({ message: "OTP is missing" });
+    return;
+  }
+
+  try {
+    const ride = await rideModel.findById(rideId);
+
+    if (!ride) {
+      res.status(404).json({ message: "Ride not found" });
+      return;
+    }
+
+    const matchedOtp = ride.otp === otp;
+
+    if (!matchedOtp) {
+      res.status(400).json({ message: "Invalid OTP" });
+      return;
+    }
+
+    if (matchedOtp) {
+      await rideModel.findByIdAndUpdate(
+        rideId,
+        { status: "onGoing" },
+        { new: true }
+      );
+    }
+
+    const userId = ride?.userId?._id.toString() || "";
+
+    const rideUser = await userModel.findById(userId).select("-password");
+
+    const userSocketId = rideUser?.socketId || "";
+
+    console.log(userSocketId);
+
+    sendMessageToSocketId(userSocketId, {
+      event: "ride-started",
+      data: {
+        ride,
+        rideUser,
+      },
+    });
+
+    res
+      .status(200)
+      .json({ message: "Ride started successfully", ride, rideUser });
+      
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export default { createRide, getFare, confirmRideByCaptain, startRide };
