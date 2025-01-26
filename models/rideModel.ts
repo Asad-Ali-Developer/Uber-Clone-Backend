@@ -16,6 +16,9 @@ const rideSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    vehicleType: {
+      type: String,
+    },
     destination: {
       type: String,
       required: true,

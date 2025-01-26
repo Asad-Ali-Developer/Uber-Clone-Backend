@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { rideModel, userModel } from "../models";
+import { captainModel, rideModel, userModel } from "../models";
 import {
   fareCalculator,
   formatDuration,
@@ -51,6 +51,7 @@ const createRide = async (req: Request, res: Response): Promise<void> => {
       destination,
       fare,
       otp: otpGenerator(6),
+      vehicleType,
     });
 
     const formattedDuration = formatDuration(duration);
@@ -177,10 +178,14 @@ const confirmRideByCaptain = async (
 
     const userSocketId = rideUser?.socketId || "";
 
+    const captain = await captainModel.findById(captainId).select("-password");
+
     sendMessageToSocketId(userSocketId, {
       event: "confirm-ride-by-captain",
       data: {
         updatedRide,
+        captain,
+        rideUser,
       },
     });
 
