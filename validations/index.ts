@@ -16,6 +16,8 @@ import mapAddressingSuggestionsValidation from "./map/maAddressingSuggestions.va
 import createRideValidation from "./ride/createRide.validation";
 import getFareValidation from "./ride/getFare.validation";
 import confirmRideByCaptainValidation from "./ride/confirmRideByCaptainValidation.validation";
+import startRideValidation from "./ride/startRideValidation";
+import completeRideByCaptain from "./ride/completeRideByCaptainValidation";
 
 export {
   registerValidation,
@@ -29,4 +31,6 @@ export {
   createRideValidation,
   getFareValidation,
   confirmRideByCaptainValidation,
+  startRideValidation,
+  completeRideByCaptain,
 };
