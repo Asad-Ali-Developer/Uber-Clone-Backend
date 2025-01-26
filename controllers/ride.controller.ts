@@ -267,11 +267,67 @@ const startRide = async (req: Request, res: Response): Promise<void> => {
     res
       .status(200)
       .json({ message: "Ride started successfully", ride, rideUser });
-      
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export default { createRide, getFare, confirmRideByCaptain, startRide };
+const completeRide = async (req: Request, res: Response): Promise<void> => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+  }
+
+  const { rideId } = req.body;
+
+  console.log(rideId);
+
+  if (!rideId) {
+    res.status(400).json({ message: "Ride ID is missing" });
+    return;
+  }
+
+  try {
+    await rideModel.findByIdAndUpdate(
+      rideId,
+      {
+        status: "completed",
+      },
+      { new: true }
+    );
+
+    const ride = await rideModel.findById(rideId);
+
+    const userId = ride?.userId?._id.toString() || "";
+
+    const rideUser = await userModel.findById(userId).select("-password");
+
+    const userSocketId = rideUser?.socketId || "";
+
+    sendMessageToSocketId(userSocketId, {
+      event: "ride-completed",
+      data: {
+        ride,
+        rideUser,
+        messageNotification: "Ride Completed!",
+      },
+    });
+
+    res
+      .status(200)
+      .json({ message: "Ride Completed Successfully!", ride, rideUser });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export default {
+  createRide,
+  getFare,
+  confirmRideByCaptain,
+  startRide,
+  completeRide,
+};
