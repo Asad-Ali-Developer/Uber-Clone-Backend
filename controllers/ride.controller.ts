@@ -155,23 +155,21 @@ const confirmRideByCaptain = async (
     res.status(400).json({ errors: errors.array() });
   }
 
-  const { rideId } = req.body;
+  const { rideId, captainId } = req.body;
+
   try {
     if (!rideId) {
       res.status(400).json({ message: "Ride ID is missing" });
       return;
     }
 
-    await rideModel.findOneAndUpdate(
-      { _id: rideId },
-      { status: "confirmed", captainId: req.captainId },
+    await rideModel.findByIdAndUpdate(
+      rideId,
+      { status: "accepted", captainId: captainId },
       { new: true }
     );
 
-    const updatedRide = await rideModel
-      .findOne({ _id: rideId })
-      .populate("userId")
-      .setOptions({ strictPopulate: false });
+    const updatedRide = await rideModel.findById(rideId);
 
     const userId = updatedRide?.userId?._id.toString() || "";
 
@@ -194,8 +192,6 @@ const confirmRideByCaptain = async (
     res.status(200).json({
       message: "Ride confirmed successfully",
       updatedRide,
-      rideUser,
-      userId,
     });
   } catch (error) {
     console.log(error);
