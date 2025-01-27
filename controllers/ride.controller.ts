@@ -294,6 +294,7 @@ const completeRide = async (req: Request, res: Response): Promise<void> => {
       rideId,
       {
         status: "completed",
+        captainId: req.captainId,
       },
       { new: true }
     );
@@ -317,7 +318,7 @@ const completeRide = async (req: Request, res: Response): Promise<void> => {
 
     res
       .status(200)
-      .json({ message: "Ride Completed Successfully!", ride, rideUser });
+      .json({ message: "Ride Completed!", ride, rideUser });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
