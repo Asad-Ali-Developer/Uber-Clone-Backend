@@ -1,4 +1,3 @@
-import { yellow } from "colorette";
 import mongoose from "mongoose";
 import { logMessage } from "../services";
 
