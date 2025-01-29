@@ -4,6 +4,7 @@ import logMessage from "./logMessage.service";
 const listRoutes = (app: Express): void => {
   const routes: { method: string; path: string }[] = [];
 
+  // Iterates all routes
   app._router.stack.forEach((middleware: any) => {
     if (middleware.route) {
       // Directly defined routes
