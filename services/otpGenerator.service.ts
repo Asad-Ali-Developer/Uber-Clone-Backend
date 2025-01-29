@@ -3,6 +3,7 @@ const otpGenerator = (length: number): string => {
     throw new Error("OTP length must be a positive integer");
   }
 
+  // This is to make sure the generated OTP is a string
   let otp = '';
   const digits = '0123456789'; // Base set of valid OTP characters
 
