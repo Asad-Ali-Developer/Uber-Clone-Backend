@@ -1,10 +1,10 @@
-import { yellow } from "colorette";
 import mongoose from "mongoose";
 import { logMessage } from "../services";
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI_OFFLINE!);
+    // Changed the default setting to the MONGODB_URI environment variable
+    await mongoose.connect(process.env.MONGODB_URI!);
     // console.log("MongoDB connected successfully!");
     // console.log(yellow("[MongoDB] Connected successfully!"))
     logMessage("[MongoDB] MongoDB connected successfully!");

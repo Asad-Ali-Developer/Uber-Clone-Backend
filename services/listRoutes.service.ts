@@ -34,7 +34,7 @@ const listRoutes = (app: Express): void => {
     }
   });
 
-  // Log the routes
+  // Log the routes and made the logMessage function
   logMessage("Mapped routes:", "LOG");
   routes.forEach((route) =>
     logMessage(
